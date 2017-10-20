@@ -60,3 +60,6 @@ git checkout 0.1
 运行命令 python setup.py install
 
 现在，已经到了一个全新的 0.1版本分支了，在这个分支上，我们可以随意更改代码，调试代码，最好commit代码。
+
+
+#### 三、

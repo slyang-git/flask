@@ -620,6 +620,7 @@ class Flask(object):
                                a list of headers and an optional
                                exception context to start the response
         """
+        print(environ)
         with self.request_context(environ):
             rv = self.preprocess_request()
             if rv is None:
@@ -661,5 +662,3 @@ current_app = LocalProxy(lambda: _request_ctx_stack.top.app)
 request = LocalProxy(lambda: _request_ctx_stack.top.request)
 session = LocalProxy(lambda: _request_ctx_stack.top.session)
 g = LocalProxy(lambda: _request_ctx_stack.top.g)
-
-print('shit')
