@@ -57,4 +57,6 @@ git checkout 0.1
 为了不破坏"犯罪现场"，我们立即从0.1版本再次checkout一个新的版本，我把它命名为 `source_code_reading_0.1`
 
 到此时，依赖的Werkzeug和Jinja2两个包还没有安装好，可以在项目的根目录下看到有一个名为 setup.py的文件，里面有依赖的Werkzeug和Jinja2两个包的版本号（注意里面的依赖是 >=, 需要改成 == 号，才会安装对应的低版本号，如果不这样做，）。
+运行命令 python setup.py install
+
 现在，已经到了一个全新的 0.1版本分支了，在这个分支上，我们可以随意更改代码，调试代码，最好commit代码。
