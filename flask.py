@@ -10,10 +10,12 @@
     :license: BSD, see LICENSE for more details.
 """
 from __future__ import with_statement
+
 import os
 import sys
 
 from threading import local
+
 from jinja2 import Environment, PackageLoader, FileSystemLoader
 from werkzeug import Request as RequestBase, Response as ResponseBase, \
      LocalStack, LocalProxy, create_environ, cached_property, \
@@ -78,18 +80,20 @@ class _RequestContext(object):
     def __init__(self, app, environ):
         self.app = app
         self.url_adapter = app.url_map.bind_to_environ(environ)
-        self.request = app.request_class(environ)
+        self.request = app.request_class(environ)  # 初始化Request对象
         self.session = app.open_session(self.request)
         self.g = _RequestGlobals()
         self.flashes = None
 
     def __enter__(self):
+        """with 语句进入时执行，将请求上下文对象push到上下文对象栈中"""
         _request_ctx_stack.push(self)
 
     def __exit__(self, exc_type, exc_value, tb):
         # do not pop the request stack if we are in debug mode and an
         # exception happened.  This will allow the debugger to still
         # access the request object in the interactive shell.
+        # with语句执行完时执行，当开启debug模式时，如果发生异常，不会执行pop，为了在调试时候能继续访问request对象
         if tb is None or not self.app.debug:
             _request_ctx_stack.pop()
 
@@ -230,7 +234,7 @@ class Flask(object):
         self.package_name = package_name
 
         #: where is the app root located?
-        self.root_path = _get_package_path(self.package_name)
+        self.root_path = _get_package_path(self.package_name)  # flask app 所在的根目录
 
         #: a dictionary of all view functions registered.  The keys will
         #: be function names which are also used to generate URLs and
@@ -239,7 +243,7 @@ class Flask(object):
         self.view_functions = {}
 
         #: a dictionary of all registered error handlers.  The key is
-        #: be the error code as integer, the value the function that
+        #: be the error code as integer, the value is the function that
         #: should handle that error.
         #: To register a error handler, use the :meth:`errorhandler`
         #: decorator.
@@ -269,6 +273,7 @@ class Flask(object):
 
         self.url_map = Map()
 
+        # 下面的代码块有待深究
         if self.static_path is not None:
             self.url_map.add(Rule(self.static_path + '/<filename>',
                                   build_only=True, endpoint='static'))
@@ -540,15 +545,18 @@ class Flask(object):
         proper response object, call :func:`make_response`.
         """
         try:
+            # 寻找view function，endpoint是view function字符串名字，
+            # values是view fuction的参数
             endpoint, values = self.match_request()
-            return self.view_functions[endpoint](**values)
+            print(endpoint, values)
+            return self.view_functions[endpoint](**values)  # 执行view function
         except HTTPException, e:
             handler = self.error_handlers.get(e.code)
             if handler is None:
                 return e
             return handler(e)
         except Exception, e:
-            handler = self.error_handlers.get(500)
+            handler = self.error_handlers.get(500)  # Server Error 500
             if self.debug or handler is None:
                 raise
             return handler(e)
@@ -573,6 +581,7 @@ class Flask(object):
 
         :param rv: the return value from the view function
         """
+        # 将view function的返回转化为Respone对象
         if isinstance(rv, self.response_class):
             return rv
         if isinstance(rv, basestring):
@@ -588,6 +597,8 @@ class Flask(object):
         if it was the return value from the view and further
         request handling is stopped.
         """
+        # 在这里集中调用被 before_request装饰器装饰的函数，如果某一个函数有返回了，
+        # 就认为是一个view function返回，接下来的函数将不会调用
         for func in self.before_request_funcs:
             rv = func()
             if rv is not None:
@@ -604,8 +615,8 @@ class Flask(object):
         """
         session = _request_ctx_stack.top.session
         if session is not None:
-            self.save_session(session, response)
-        for handler in self.after_request_funcs:
+            self.save_session(session, response)  # 保存session
+        for handler in self.after_request_funcs:  # 依次调用所有被after_request装饰的函数
             response = handler(response)
         return response
 
@@ -621,10 +632,10 @@ class Flask(object):
                                exception context to start the response
         """
         print(environ)
-        with self.request_context(environ):
+        with self.request_context(environ):   # with statement保证了每个client请求上下文的独立性，隔离性
             rv = self.preprocess_request()
             if rv is None:
-                rv = self.dispatch_request()
+                rv = self.dispatch_request()  # 分发请求处理，核心代码
             response = self.make_response(rv)
             response = self.process_response(response)
             return response(environ, start_response)
