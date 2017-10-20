@@ -4,3 +4,5 @@
 env
 dist
 *.egg-info
+/atlassian-ide-plugin.xml
+.idea
