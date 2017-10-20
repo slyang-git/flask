@@ -32,4 +32,34 @@ git checkout 0.1
 现在，已经到了一个全新的 0.1版本分支了，在这个分支上，我们可以随意注释、更改、调试，最后commit代码。
 
 
-#### 🐍 三、
+#### 🐍 三、项目结构说明
+
+0.1版本的Flask项目结构(布局)很简洁，flask的核心代码全部在flask.py单个模块中（后面的Flask版本flask.py被慢慢抽象成了一个包，里面包含很多不同的模块文件）
+
+下面的项目的结构
+
+```
+flask
+    ├── LICENSE
+    ├── Makefile
+    ├── README
+    ├── artwork
+    ├── docs
+    ├── examples
+    ├── flask.py
+    ├── setup.py
+    ├── tests
+    └── website
+```
+
+1. LICENSE 文件
+2. Makefile文件（我很少用）
+3. README (文件没有后缀，为了更好的编辑这个文件，建议更改成.md文件)
+4. artwork 是一个目录，里面放的是Flask的logo图片文件
+5. docs 是一个目录，里面是Flask的文档
+6. examples 一个目录，里面是用Flask做的两个demo小项目，适合入门学习Flask
+7. flask.py Flaks的核心代码全部在这一个文件里
+8. setup.py
+9. tests 测试用例目录
+10. website Flask官网静态文件目录
+
