@@ -554,12 +554,12 @@ class Flask(object):
             handler = self.error_handlers.get(e.code)
             if handler is None:
                 return e
-            return handler(e)
+            return handler()
         except Exception, e:
             handler = self.error_handlers.get(500)  # Server Error 500
             if self.debug or handler is None:
                 raise
-            return handler(e)
+            return handler()
 
     def make_response(self, rv):
         """Converts the return value from a view function to a real
@@ -669,7 +669,8 @@ class Flask(object):
 
 # context locals
 _request_ctx_stack = LocalStack()
-current_app = LocalProxy(lambda: _request_ctx_stack.top.app)
+current_app = LocalProxy(lambda: _request_ctx_stack.top.app)  # lambda without arguments, aways return
 request = LocalProxy(lambda: _request_ctx_stack.top.request)
 session = LocalProxy(lambda: _request_ctx_stack.top.session)
 g = LocalProxy(lambda: _request_ctx_stack.top.g)
+

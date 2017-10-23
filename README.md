@@ -44,6 +44,7 @@ flask
     ├── Makefile
     ├── README
     ├── artwork
+    ├── .gitignore
     ├── docs
     ├── examples
     ├── flask.py
@@ -52,14 +53,14 @@ flask
     └── website
 ```
 
-1. LICENSE 文件
-2. Makefile文件（我很少用）
-3. README (文件没有后缀，为了更好的编辑这个文件，建议更改成.md文件)
-4. artwork 是一个目录，里面放的是Flask的logo图片文件
-5. docs 是一个目录，里面是Flask的文档
-6. examples 一个目录，里面是用Flask做的两个demo小项目，适合入门学习Flask
-7. flask.py Flaks的核心代码全部在这一个文件里
-8. setup.py
-9. tests 测试用例目录
-10. website Flask官网静态文件目录
+1. `LICENSE` 文件
+2. `Makefile` 文件（我很少用）
+3. `README` (文件没有后缀，为了更好的编辑这个文件，建议更改成.md文件)
+4. `artwork` 是一个目录，里面放的是Flask的logo图片文件
+5. `docs` 是一个目录，里面是Flask的文档
+6. `examples` 一个目录，里面是用Flask做的两个demo小项目，适合入门学习Flask
+7. `flask.py` Flaks的核心代码全部在这一个文件里
+8. `setup.py`
+9. `tests` 测试用例目录
+10. `website` Flask官网静态文件目录
 
