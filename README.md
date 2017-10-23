@@ -78,7 +78,7 @@ g = LocalProxy(lambda: _request_ctx_stack.top.g)
 
 在0.5及以后移动到了 flask/globals.py 中。
 
-LocalStack和LocalProxy都离不开Local。Local实现了访问全局对象而实际去拿特定线程local对象的功能。首先Local通过thread.get_ident（如果是greenlet则为greenlet.get_ident）来拿到一个线程id，这个线程id是一个非负整数，它的值没有什么实际的意义，但能标识出是在不同的线程之中。看Local.__getattr__的实现，实际取的值为 self.__storage__[get_ident()](name)，self.__storage__是一个实例自带的dict，__setattr__和__delattr__也同理。
+LocalStack和LocalProxy都离不开Local。Local实现了访问全局对象而实际去拿特定线程local对象的功能。首先Local通过 `thread.get_ident` （如果是greenlet则为 `greenlet.get_ident` ）来拿到一个线程id，这个线程id是一个非负整数，它的值没有什么实际的意义，但能标识出是在不同的线程之中。看 `Local.__getattr__` 的实现，实际取的值为 `self.__storage__[get_ident()](name)` ，`self.__storage__` 是一个实例自带的dict，`__setattr__` 和 `__delattr__` 也同理。
 
 代码示例
 
@@ -94,7 +94,7 @@ LocalStack和LocalProxy都离不开Local。Local实现了访问全局对象而�
 
 所得到的效果就是我们全局给local.name赋了值，但在不同的线程中，取值时local.name其实是不同的。
 
-但_request_ctx_stack是一个LocalStack，什么是LocalStack呢，看名字就能想到它是一个基于Local而衍生出来的Stack，内部存储实际就是一个python的list，它实现了push/pop方法，以及top来取栈顶元素，而且也能像Local一样，不同的线程能解析出不同的Stack。
+但 `_request_ctx_stack` 是一个localstack，什么是localstack呢，看名字就能想到它是一个基于local而衍生出来的stack，内部存储实际就是一个python的list，它实现了push/pop方法，以及top来取栈顶元素，而且也能像local一样，不同的线程能解析出不同的stack。
 
 ```
 >>> ls = LocalStack()
@@ -110,9 +110,9 @@ LocalStack和LocalProxy都离不开Local。Local实现了访问全局对象而�
 42
 ```
 
-但flask没有直接用Local，而是用了LocalProxy，对一个LocalProxy对象的操作，实际上都指向了它所代理的local对象（LocalProxy._get_current_object方法获得）。用LocalProxy方便了Local的管理，只用实例化一个Local对象，而不用实例化很多个，通过不同的LocalProxy来访问同一个Local的不同属性。
+但flask没有直接用Local，而是用了LocalProxy，对一个LocalProxy对象的操作，实际上都指向了它所代理的local对象（`LocalProxy._get_current_object` 方法获得）。用LocalProxy方便了Local的管理，只用实例化一个Local对象，而不用实例化很多个，通过不同的LocalProxy来访问同一个Local的不同属性。
 
-_RequestContext实现了一个context，在enter的时候，也就是request的开始，会向_request_ctx_stack.push(self)，exit的时候，也就是request结束时，pop出。_RequestContext定义了一些属性，如app/url_adapter/request/session/g。通过stack的机制，当在请求的上下文中，全局的request/g/session/current_app总能拿到栈顶元素的相应属性。
+`_RequestContext` 实现了一个context，在enter的时候，也就是request的开始，会向 `_request_ctx_stack.push(self)`，exit的时候，也就是request结束时，pop出。`_RequestContext` 定义了一些属性，如 `app/url_adapter/request/session/g` 。通过stack的机制，当在请求的上下文中，全局的 `request/g/session/current_app` 总能拿到栈顶元素的相应属性。
 
 在werkzeug.locals的代码中加上一些print语句:
 
