@@ -150,7 +150,26 @@ pop from stack current [<flask._RequestContext object at 0x10d780090>]
 127.0.0.1 - - [22/Oct/2017 23:13:16] "GET / HTTP/1.1" 200 -
 ```
 
+为了更好的理解Flask的源码，我们先来了解一下http://127.0.0.1:5000访问，背后发生了什么。下面的图是对这个过程的一个粗糙描述。
+
 ![一次web请求流程图](images/web-wsgi-server-app.jpg)
+
+我们在项目的根目录下新建文件 `run.py`，在其中写如下代码，并执行，此时将会开启一个wsgi server（又werkgeug实现）
+
+```python
+from flask import Flask
+
+app = Flask(__name__)
+
+if __name__ == '__main__':
+    app.run()
+    
+```
+当我们在浏览器的地址栏中输入 `http://localhost:5000` 访问后，浏览器将发起一个 request，如图中 ① 所示。
+
+wsgi server 收到浏览器的 request请求后，会对其进行一定的解析和加强后，再调用 flask的 app， 如图中 ② 所示。
+
+那么重点来了，wsgi server 是如何调用 flask app的呢？通过阅读 Flask 类的定义，我们发现它实现了一个 `__call__` 函数，这个函数会在调用 app的时候 自动执行, 例如 `app()`
 
 ```python
 
@@ -178,6 +197,13 @@ def wsgi_app(self, environ, start_response):
         response = self.process_response(response)
         return response(environ, start_response)
 ```
+
+也就是说 wsgi server中 在某一个地方一定执行了 `app()`这样一条语句。`__call__`函数有两个参数，一个是 `environ`和`start_response`, 
+environ 是environment的缩写，表示的是request请求的上下文，例如请求的资源路径、http headers等数据，我们可以在`__call__`中print一下 environ，结果如下。
+
+> {'wsgi.multiprocess': False, 'HTTP_COOKIE': 'remember_token=spacebox|8f685a538ac321a3073f46595c40a3eb731d931a40dec703c0895ecb94c9d1c857e4f009b2059aa7ab31c93051e85e94e2be76264cbec6ee2ca4bbfe44e61c81; session=.eJw9zksKwkAQRdG99DiD6kp_sxmpz2t0YiQxIIh7NyA4PZN73-EyNuzXsDy3A1O43DwsQWofjGo1MxfOPfpwNULtTtQKW8opuqLNKgaD0EiKXIpV1YYccwE7m2svbkNUAemWuHFqowHZWbQ5lZRmjJgiDaFooJjnXkuYgpitx_15zuyPs6Hr68Rjx_Y7_OPnCw0DOtc.DNA_mg.jo6cex9OJ8Vp29H2edWSJn35pbo', 'SERVER_SOFTWARE': 'Werkzeug/0.6.1', 'SCRIPT_NAME': '', 'REQUEST_METHOD': 'GET', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1', 'QUERY_STRING': '', 'CONTENT_LENGTH': '', 'HTTP_USER_AGENT': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36', 'HTTP_CONNECTION': 'keep-alive', 'SERVER_NAME': '127.0.0.1', 'REMOTE_PORT': 64102, 'HTTP_ALEXATOOLBAR_ALX_NS_PH': 'AlexaToolbar/alx-4.0', 'wsgi.url_scheme': 'http', 'SERVER_PORT': '5000', 'wsgi.input': <socket._fileobject object at 0x110d13d50>, 'HTTP_HOST': '127.0.0.1:5000', 'wsgi.multithread': False, 'HTTP_UPGRADE_INSECURE_REQUESTS': '1', 'HTTP_ACCEPT': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8', 'wsgi.version': (1, 0), 'wsgi.run_once': False, 'wsgi.errors': <open file '<stderr>', mode 'w' at 0x1100e01e0>, 'REMOTE_ADDR': '127.0.0.1', 'HTTP_ACCEPT_LANGUAGE': 'zh-CN,zh;q=0.8,en-US;q=0.6,en;q=0.4', 'CONTENT_TYPE': '', 'HTTP_ACCEPT_ENCODING': 'gzip, deflate, br'}
+
+
 
 ref:
 
