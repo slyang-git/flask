@@ -22,9 +22,11 @@ class Dog(object):
 
 
 dog = Dog('lucy')
+dog()
 
-with Dog('lily') as d:
-    print ('hello')
+#
+# with Dog('lily') as d:
+#     print ('hello')
 
 
 

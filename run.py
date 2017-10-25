@@ -4,7 +4,7 @@
 Created by yangshuanglong@wecash.net on 17/10/20
 """
 
-from flask import Flask
+from flask import Flask, g
 
 app = Flask(__name__)
 app.secret_key = 'sfdsfjhkls'
@@ -12,6 +12,7 @@ app.secret_key = 'sfdsfjhkls'
 
 @app.route('/')
 def index():
+    g.name = 'yang'
     return 'hello'
 
 
@@ -19,6 +20,13 @@ def index():
 def page_not_found(code):
     return 'page not found'
 
+@app.before_request
+def before_request():
+    pass
+
+@app.after_request
+def after_request(response):
+    return response
 
 if __name__ == '__main__':
     debug = False
