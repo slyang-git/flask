@@ -150,6 +150,34 @@ pop from stack current [<flask._RequestContext object at 0x10d780090>]
 127.0.0.1 - - [22/Oct/2017 23:13:16] "GET / HTTP/1.1" 200 -
 ```
 
+![一次web请求流程图](images/web-wsgi-server-app.jpg)
+
+```python
+
+def __call__(self, environ, start_response):
+    """Shortcut for :attr:`wsgi_app`"""
+    return self.wsgi_app(environ, start_response)
+        
+        
+def wsgi_app(self, environ, start_response):
+    """The actual WSGI application.  This is not implemented in
+    `__call__` so that middlewares can be applied:
+
+        app.wsgi_app = MyMiddleware(app.wsgi_app)
+
+    :param environ: a WSGI environment
+    :param start_response: a callable accepting a status code,
+                           a list of headers and an optional
+                           exception context to start the response
+    """
+    with self.request_context(environ): 
+        rv = self.preprocess_request()
+        if rv is None:
+            rv = self.dispatch_request()
+        response = self.make_response(rv)
+        response = self.process_response(response)
+        return response(environ, start_response)
+```
 
 ref:
 
