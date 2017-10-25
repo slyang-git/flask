@@ -26,9 +26,11 @@ class Duck(object):
         print ('__init__')
 
 dog = Dog('lucy')
+dog()
 
-with Dog('lily') as d:
-    print ('hello')
+#
+# with Dog('lily') as d:
+#     print ('hello')
 
 duck = Duck()
 

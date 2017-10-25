@@ -631,7 +631,6 @@ class Flask(object):
                                a list of headers and an optional
                                exception context to start the response
         """
-        print(environ)
         with self.request_context(environ):   # with statement保证了每个client请求上下文的独立性，隔离性
             rv = self.preprocess_request()
             if rv is None:
