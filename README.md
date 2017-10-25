@@ -64,7 +64,17 @@ flask
 10. website Flask官网静态文件目录
 
 
-#### Request Context
+#### flask.py 代码结构宏观看
+
+![flask代码结果截图](images/flask_structrue.jpg)
+
+整个flask.py文件的代码结构如上图所示，可以看到整个文件只有600+行代码，而且其中估计60%都是注释行。其中核心代码是 Flask类的定义 以及 最后的5行代码。
+
+另外 flask.py文件中也定义了 `Request`类和`Response`类，他们分别继承了 werkzeug 中 `RequestBase`和`ResponseBase`类，werkzeug这两个类已经帮我们做了几乎全部的Request及Response封装
+
+`_RequestContext`类也是一个非常非常重要的类，下面会讲到这个类。
+
+#### 理解 Request Context
 
 ```
 # context locals
@@ -78,7 +88,9 @@ g = LocalProxy(lambda: _request_ctx_stack.top.g)
 
 在0.5及以后移动到了 flask/globals.py 中。
 
-LocalStack和LocalProxy都离不开Local。Local实现了访问全局对象而实际去拿特定线程local对象的功能。首先Local通过thread.get_ident（如果是greenlet则为greenlet.get_ident）来拿到一个线程id，这个线程id是一个非负整数，它的值没有什么实际的意义，但能标识出是在不同的线程之中。看Local.__getattr__的实现，实际取的值为 self.__storage__[get_ident()](name)，self.__storage__是一个实例自带的dict，__setattr__和__delattr__也同理。
+LocalStack和LocalProxy都离不开Local。Local实现了访问全局对象而实际去拿特定线程local对象的功能。
+首先Local通过thread.get_ident（如果是greenlet则为greenlet.get_ident）来拿到一个线程id，这个线程id是一个非负整数，它的值没有什么实际的意义，
+但能标识出是在不同的线程之中。看Local.__getattr__的实现，实际取的值为 self.__storage__[get_ident()](name)，self.__storage__是一个实例自带的dict，__setattr__和__delattr__也同理。
 
 代码示例
 
@@ -94,7 +106,8 @@ LocalStack和LocalProxy都离不开Local。Local实现了访问全局对象而�
 
 所得到的效果就是我们全局给local.name赋了值，但在不同的线程中，取值时local.name其实是不同的。
 
-但_request_ctx_stack是一个LocalStack，什么是LocalStack呢，看名字就能想到它是一个基于Local而衍生出来的Stack，内部存储实际就是一个python的list，它实现了push/pop方法，以及top来取栈顶元素，而且也能像Local一样，不同的线程能解析出不同的Stack。
+但_request_ctx_stack是一个LocalStack，什么是LocalStack呢，看名字就能想到它是一个基于Local而衍生出来的Stack，
+内部存储实际就是一个python的list，它实现了push/pop方法，以及top来取栈顶元素，而且也能像Local一样，不同的线程能解析出不同的Stack。
 
 ```
 >>> ls = LocalStack()
@@ -115,6 +128,8 @@ LocalStack和LocalProxy都离不开Local。Local实现了访问全局对象而�
 _RequestContext实现了一个context，在enter的时候，也就是request的开始，会向_request_ctx_stack.push(self)，exit的时候，也就是request结束时，pop出。_RequestContext定义了一些属性，如app/url_adapter/request/session/g。通过stack的机制，当在请求的上下文中，全局的request/g/session/current_app总能拿到栈顶元素的相应属性。
 
 在werkzeug.locals的代码中加上一些print语句:
+
+以下是对一次 在浏览器中 访问 `http://127.0.0.1:5000/`的输出日志
 
 ```
  * Running on http://127.0.0.1:5000/
@@ -139,5 +154,7 @@ pop from stack current [<flask._RequestContext object at 0x10d780090>]
 ref:
 
 https://github.com/pallets/werkzeug/blob/0.6.1/werkzeug/local.py
+
 https://github.com/pallets/flask/blob/0.1/flask.py
+
 https://stackoverflow.com/a/38945407/995394
