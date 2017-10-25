@@ -136,6 +136,26 @@ pop from stack current [<flask._RequestContext object at 0x10d780090>]
 ```
 
 
+#### LocalProxy 类的__init__方法
+```
+ def __init__(self, local, name=None):
+        object.__setattr__(self, '_LocalProxy__local', local)
+        object.__setattr__(self, '__name__', name)
+```
+
+这个地方为何是用`object.__setattr__`而不是用`self.name = name`的方式
+
+This method is called instead of the normal mechanism (i.e. store the value in the instance dictionary).
+
+If __setattr__() wants to assign to an instance attribute, it should not simply execute self.name = value — this would cause a recursive call to itself.
+
+Instead, it should insert the value in the dictionary of instance attributes, e.g., self.__dict__[name] = value.
+
+For new-style classes, rather than accessing the instance dictionary, it should call the base class method with the same name, for example,
+
+>>> object.__setattr__(self, name, value).
+
+
 ref:
 
 https://github.com/pallets/werkzeug/blob/0.6.1/werkzeug/local.py
