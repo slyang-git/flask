@@ -123,9 +123,9 @@ LocalStack和LocalProxy都离不开Local。Local实现了访问全局对象而�
 42
 ```
 
-但flask没有直接用Local，而是用了LocalProxy，对一个LocalProxy对象的操作，实际上都指向了它所代理的local对象（LocalProxy._get_current_object方法获得）。用LocalProxy方便了Local的管理，只用实例化一个Local对象，而不用实例化很多个，通过不同的LocalProxy来访问同一个Local的不同属性。
+但flask没有直接用Local，而是用了LocalProxy，对一个LocalProxy对象的操作，实际上都指向了它所代理的local对象（`LocalProxy._get_current_object` 方法获得）。用LocalProxy方便了Local的管理，只用实例化一个Local对象，而不用实例化很多个，通过不同的LocalProxy来访问同一个Local的不同属性。
 
-_RequestContext实现了一个context，在enter的时候，也就是request的开始，会向_request_ctx_stack.push(self)，exit的时候，也就是request结束时，pop出。_RequestContext定义了一些属性，如app/url_adapter/request/session/g。通过stack的机制，当在请求的上下文中，全局的request/g/session/current_app总能拿到栈顶元素的相应属性。
+`_RequestContext` 实现了一个context，在enter的时候，也就是request的开始，会向 `_request_ctx_stack.push(self)`，exit的时候，也就是request结束时，pop出。`_RequestContext` 定义了一些属性，如 `app/url_adapter/request/session/g` 。通过stack的机制，当在请求的上下文中，全局的 `request/g/session/current_app` 总能拿到栈顶元素的相应属性。
 
 在werkzeug.locals的代码中加上一些print语句:
 

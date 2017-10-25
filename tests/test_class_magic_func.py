@@ -21,6 +21,10 @@ class Dog(object):
         return False
 
 
+class Duck(object):
+    def __init__(self):
+        print ('__init__')
+
 dog = Dog('lucy')
 dog()
 
@@ -28,5 +32,8 @@ dog()
 # with Dog('lily') as d:
 #     print ('hello')
 
+duck = Duck()
 
+setattr(duck, 'key', 'val77888ue')
 
+print(duck.key)

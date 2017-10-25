@@ -17,8 +17,19 @@ def index():
 
 
 @app.errorhandler(404)
-def page_not_found(code):
-    return 'page not found'
+def page_not_found():
+    return 'This page does not exist', 404
+
+
+@app.before_request
+def before_request():
+    print('before request')
+
+
+@app.after_request
+def after_request(response):
+    print('after request')
+    return response
 
 @app.before_request
 def before_request():
